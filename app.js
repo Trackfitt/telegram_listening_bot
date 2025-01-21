@@ -1,20 +1,26 @@
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 const express = require('express');
 const connectDB = require('./database');
+const { bot } = require('./bot');
 
-// Create an Express app
 const app = express();
 
-// Define a basic route
+// Add JSON parsing middleware
+app.use(express.json());
+
+// Webhook endpoint
+app.post(`/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
 app.get('/', (req, res) => {
   res.send('Telegram Bot is running!');
 });
 
-// Start the HTTP server
-const PORT = process.env.PORT || 7006; // Use the provided port or default to 3000
+const PORT = process.env.PORT || 7006;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-// Connect to MongoDB and start listening for changes
 connectDB();
